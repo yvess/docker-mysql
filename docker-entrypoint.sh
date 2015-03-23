@@ -16,7 +16,7 @@ if [ "$1" = 'mysqld' ]; then
 		# MAKE DIRS RUN / ETC / COUCHDB
 		mkdir -p "$MYSQL_DATA" "$MYSQL_LOG"
 
-		mysql_install_db --user=mysql --datadir=/var/data/mysql
+		mysql_install_db --user=mysql --datadir=$MYSQL_DATA
 
 		# These statements _must_ be on individual lines, and _must_ end with
 		# semicolons (no line breaks or comments are permitted).
