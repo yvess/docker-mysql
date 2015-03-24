@@ -6,7 +6,8 @@ if [ "$1" = 'mysqld' ]; then
 	MYSQL_DATA=${MYSQL_DATA:-/var/services/data/mysql}
 	MYSQL_LOG=${MYSQL_LOG:-/var/services/log/mysql} # Not used at the moment
 	MYSQL_USER=${MYSQL_USER:-mysql}
-	if [ -z "$(ls -A $MYSQL_DATA)" -a "${1%_safe}" = 'mysqld' ]; then
+	INIT=""
+	if [ ! -d "$MYSQL_DATA" ]; then
 		if [ -z "$MYSQL_ROOT_PASSWORD" ]; then
 			echo >&2 'error: database is uninitialized and MYSQL_ROOT_PASSWORD not set'
 			echo >&2 '  Did you forget to add -e MYSQL_ROOT_PASSWORD=... ?'
@@ -40,10 +41,10 @@ if [ "$1" = 'mysqld' ]; then
 			fi
 		fi
 		echo 'FLUSH PRIVILEGES ;' >> "$TEMP_FILE"
-		set -- "$@" --init-file="$TEMP_FILE"
+		INIT="--init-file=$TEMP_FILE"
 	fi
 	chown -R mysql:mysql $MYSQL_DATA
-	HOME="$MYSQL_DATA" su mysql -c "/usr/sbin/mysqld --datadir=$MYSQL_DATA --innodb-file-format=barracuda --user=$MYSQL_USER"
+	HOME="$MYSQL_DATA" su mysql -c "/usr/sbin/mysqld --datadir=$MYSQL_DATA --innodb-file-format=barracuda --user=$MYSQL_USER --skip-name-resolve $INIT"
 fi
 
 exec "$@"
